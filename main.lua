@@ -1,4 +1,4 @@
--- Advent of Code 2025 Day 4
+-- Advent of Code 2025 Day 3
 
 local file = io.open('input.txt', 'r')
 if not file then
@@ -14,67 +14,53 @@ end
 local inputtest = filetest:read '*a'
 filetest:close()
 
-local current = inputtest
+local current = input
 
-local lines = 0
 local list = {}
 for item in current:gmatch '[^\n]+' do
   table.insert(list, item)
-  lines = lines + 1
 end
 
 -- variables
-local r1, r2 = 0, 0
-local columns = 0
-local matrix = {}
-local dv = { -1, -1, -1, 0, 0, 1, 1, 1 }
-local dh = { -1, 0, 1, -1, 1, -1, 0, 1 }
+local r = 0
+local size = 12
 
--- Part 1
 for _, line in pairs(list) do
+  local s = 0
+  local max = {}
   local chars = {}
-  for char in tostring(line):gmatch '.' do
-    table.insert(chars, char)
-    columns = columns + 1
+  local oldindex = {}
+  for _ = 1, size, 1 do
+    table.insert(max, 0)
+    table.insert(oldindex, 0)
   end
-  table.insert(matrix, chars)
-end
-for iv, line in pairs(matrix) do
-  for ih, char in pairs(line) do
-    local neighbors = 0
-    if char == '@' then
-      if (iv > 1 and ih > 1) and (iv < lines - 1 and ih < columns - 1) then
-        print(matrix[iv - 1][ih - 1])
-        print(matrix[iv - 1][ih])
-        print(matrix[iv - 1][ih + 1])
-        print(matrix[iv][ih - 1])
-        print(matrix[iv][ih])
-        print(matrix[iv][ih + 1])
-        print(matrix[iv + 1][ih - 1])
-        print(matrix[iv + 1][ih])
-        print(matrix[iv + 1][ih + 1])
+  for char in line:gmatch '%d' do
+    table.insert(chars, char)
+  end
+  for i = 1, size, 1 do
+    if i > 1 then
+      for index, char in pairs(chars) do
+        if tonumber(char) > tonumber(max[i]) and index < string.len(line) - size + i + 1 and index > oldindex[i - 1] then
+          max[i] = tonumber(char)
+          oldindex[i] = index
+        end
       end
-      for i = 1, 8, 1 do
-        local nv = iv + dv[i]
-        local nh = ih + dh[i]
-        if (nv > 0 and nh > 0) and (nv < lines and nh < columns) then
-          if matrix[nv][nh] == '@' then
-            neighbors = neighbors + 1
-          end
+    else
+      for index, char in pairs(chars) do
+        if tonumber(char) > tonumber(max[i]) and index < string.len(line) - size + i + 1 then
+          max[i] = tonumber(char)
+          oldindex[i] = index
         end
       end
     end
-    print(neighbors)
-    if neighbors < 4 then
-      r1 = r1 + 1
-    end
   end
+  for i = 1, size, 1 do
+    local a = size - i + 1
+    s = s + tonumber(max[a]) * 10 ^ i
+  end
+  local a = tostring(s):gsub('0%.0', '')
+  r = r + tonumber(a)
 end
 
--- reset variables
-
--- Part 2
-
 -- final
-print(r1)
-print(r2)
+print(r)
